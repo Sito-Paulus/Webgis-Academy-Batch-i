@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class"
+    }
+  </script>
+  <title>Contact Us</title>
+</head>
+<body class="dark:bg-black bg-white min-h-screen p-6">
+  <!-- Navbar -->
+  <nav class="flex justify-center mb-6">
+    <ul class="flex space-x-6 text-gray-600 dark:text-gray-300 font-medium">
+      <li><a href="Home_Page.html" class="hover:text-blue-400">Home</a></li>
+      <li><a href="Map.html" class="hover:text-blue-400">Map</a></li>
+      <li><a href="Contact.html" class="hover:text-blue-400">Contact Us</a></li>
+      <li>
+        <button onclick="changeTheme()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+          <!-- Sun -->
+          <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M6.05 17.95l-1.414 1.414M17.95 17.95l1.414 1.414M6.05 6.05L4.636 4.636M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+          </svg>
+          <!-- Moon -->
+          <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-800 dark:text-gray-200 hidden" fill="currentColor" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" d="M17.293 14.707a8 8 0 11-7.586-7.586 8.001 8.001 0 007.586 7.586z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Profil -->
+  <h1 class="text-2xl font-bold mb-2 dark:text-white">Welcome to my profile</h1>
+  <hr class="mb-4"/>
+
+  <p class="mb-6 text-gray-700 dark:text-gray-300">
+    Hallo!!! Perkenalkan saya <b>Sito Paulus</b>. saya merupakan salah satu staff di bidang perkebunan Dinas DKP3 Kab. Sekadau,
+    kegiatan yang ada di bidang perkebunan adalah <strong>memetakan lahan perkebunan</strong> agar memiliki dokumen digital secara geospasial.
+  </p>
+
+  <!-- Form -->
+  <div class="mb-6 space-y-4">
+    <div>
+      <label for="nama" class="block text-gray-700 dark:text-gray-300">Nama</label>
+      <input id="nama" name="nama" type="text" class="border rounded p-2 w-full"/>
+    </div>
+
+    <div>
+      <label for="email" class="block text-gray-700 dark:text-gray-300">Email</label>
+      <input id="email" name="email" type="email" class="border rounded p-2 w-full"/>
+    </div>
+
+    <div>
+      <label for="kritik" class="block text-gray-700 dark:text-gray-300">Kritik dan Saran</label>
+      <textarea id="kritik" name="kritik" placeholder="Masukkan kritik dan saran" class="border rounded p-2 w-full"></textarea>
+    </div>
+
+    <button onclick="onSubmit()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Submit!</button>
+  </div>
+
+  <!-- Table -->
+  <table class="border w-full text-left text-gray-700 dark:text-gray-300">
+    <thead class="bg-gray-200 dark:bg-gray-700">
+      <tr>
+        <th class="border px-2 py-1">Nama</th>
+        <th class="border px-2 py-1">Email</th>
+        <th class="border px-2 py-1">Kritik dan Saran</th>
+      </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+  </table>
+
+  <script>
+    // Theme setup
+    if (localStorage.theme === "dark") {
+      document.documentElement.classList.add("dark")
+    } else if (localStorage.theme === "light") {
+      document.documentElement.classList.remove("dark")
+    } else {
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        document.documentElement.classList.add("dark")
+      }
+    }
+
+    function changeTheme() {
+      if (document.documentElement.classList.contains("dark")) {
+        document.documentElement.classList.remove("dark")
+        localStorage.theme = "light"
+      } else {
+        document.documentElement.classList.add("dark")
+        localStorage.theme = "dark"
+      }
+      updateIcons()
+    }
+
+    function updateIcons() {
+      const isDark = document.documentElement.classList.contains("dark")
+      document.getElementById("sunIcon").classList.toggle("hidden", !isDark)
+      document.getElementById("moonIcon").classList.toggle("hidden", isDark)
+    }
+    updateIcons()
+
+    // Form Submit
+   function onSubmit(){
+        const name = document.getElementById("nama").value
+        const email= document.getElementById("email").value
+        const kritik_saran = document.getElementById("kritik").value
+
+        if(name.length>0 && email.length>0 && kritik_saran.length>0){
+            postSaran(name, email, kritik_saran)
+        }else{
+
+            alert("data jangan kosong!")
+
+        }
+
+       } 
+
+       function postSaran(name, email, kritik_saran){ 
+        console.log(name, email, kritik_saran)
+        fetch("https://68dcdc667cd1948060ab89a0.mockapi.io/webgis/saran/v1", {
+            method:"POST", 
+            headers:{"Content-Type": "application/json"}, 
+            body:JSON.stringify({name, email, kritik_saran})
+        })
+        .then(response=> response.json())
+        .then(()=>{ getData()})
+        .catch(error=> console.log(error))
+       }
+        function getData(){
+        
+        const tableBody = document.getElementById("table-body")
+        tableBody.innerHTML= ''
+         fetch("https://68dcdc667cd1948060ab89a0.mockapi.io/webgis/saran/v1", {
+            method:"GET", 
+            headers:{"Content-Type": "application/json"}, 
+        })
+        .then(response=> response.json())
+        .then((data)=> 
+    
+  data.forEach(data=> {
+                const row = document.createElement("tr")
+                const nameCell = document.createElement("td")
+           
+                nameCell.textContent = data.name
+                const emailCell = document.createElement("td")
+                emailCell.textContent = data.email
+                const kritikCell = document.createElement("td")
+                kritikCell.textContent = data.kritik_saran
+
+                row.appendChild(nameCell)
+                row.appendChild(emailCell)
+                row.appendChild(kritikCell)
+                tableBody.appendChild(row)
+                
+
+            }
+
+            )
+    )
+        .catch(error=> console.log(error))
+       }
+      
+       getData()
+  </script>
+</body>
+</html>
